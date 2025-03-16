@@ -2,13 +2,25 @@ package main
 
 import (
 	"fmt"
-	test_route_routes "hospital-rest/routes/test_route"
+	"github.com/joho/godotenv"
+	"hospital-rest/routes"
+	"hospital-rest/services"
+	"log"
 )
 
 func main() {
-	test_route := test_route_routes.Setup_test_route()
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	fabricService := services.NewFabricServiceImpl()
+	routes.RegisterChaincodeRoutes(fabricService)
+
+	runObject := routes.GetRouteObject()
 	fmt.Println("Starting the server at :8080")
-	err := test_route.Run(":8080")
+
+	err = runObject.Run(":8080")
 	if err != nil {
 		fmt.Println("Error starting the server:", err)
 	}

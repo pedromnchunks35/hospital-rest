@@ -6,4 +6,4 @@ hyperledger fabric network
 
 ## [How to use mocks](./docs/mocks.md)
 
-## [Project Structure](./docks/structure.md)
+## [Project Structure](./docs/structure.md)
