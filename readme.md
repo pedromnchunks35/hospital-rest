@@ -7,3 +7,9 @@ hyperledger fabric network
 ## [How to use mocks](./docs/mocks.md)
 
 ## [Project Structure](./docs/structure.md)
+
+## ROUTE EXAMPLE
+```
+http://SA-SRVAIDA77:30030/0/10
+```
+- Check more routes [here](./routes/chaincode.go)

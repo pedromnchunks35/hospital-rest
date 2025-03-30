@@ -24,13 +24,13 @@ func (c ChaincodeController) GetAllAssets(context *gin.Context) {
 	pageString := context.Param("page")
 	sizeString := context.Param("size")
 
-	page, size, err := validation.ValidatePageAndSize(pageString, sizeString)
+	_, _, err := validation.ValidatePageAndSize(pageString, sizeString)
 	if err != nil {
 		apiResponses.BadArgumentsResponse(context, "Please provide a valid page and size")
 		return
 	}
 
-	filter := &dtos.GetAllAssetsRequest{}
+	filter := &dtos.Filter{}
 	err = context.ShouldBindJSON(filter)
 	if err != nil {
 		apiResponses.BadArgumentsResponse(context, "Please provide a valid object")
@@ -43,12 +43,13 @@ func (c ChaincodeController) GetAllAssets(context *gin.Context) {
 		return
 	}
 
-	answer := chaincodeConnection.ReadInFabric(
+	answer, gateway := chaincodeConnection.ReadInFabric(
 		"GetAllAssets",
-		string(page),
-		string(size),
+		pageString,
+		sizeString,
 		string(filterEncoded),
 	)
+	defer gateway.Close()
 	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
 	return
 }
@@ -72,17 +73,20 @@ func (c ChaincodeController) PostAsset(context *gin.Context) {
 		apiResponses.BadArgumentsResponse(context, "Could not encode the request")
 		return
 	}
-	answer := chaincodeConnection.PostInFabric("PostAsset", string(newAssetEncoded))
+
+	answer, gateway := chaincodeConnection.PostInFabric("CreateAsset", string(newAssetEncoded))
+	defer gateway.Close()
 	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
 }
 
 func (c ChaincodeController) GetById(context *gin.Context) {
 	idString := context.Param("id")
-	answer := chaincodeConnection.ReadInFabric("GetAssetById", idString)
+	answer, gateway := chaincodeConnection.ReadInFabric("GetAssetById", idString)
+	defer gateway.Close()
 	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
 }
 
-func (c ChaincodeController) PutById(context *gin.Context) {
+func (c ChaincodeController) PatchById(context *gin.Context) {
 	idString := context.Param("id")
 	newAsset := &dtos.PostAssetRequest{}
 	context.BindJSON(newAsset)
@@ -93,12 +97,14 @@ func (c ChaincodeController) PutById(context *gin.Context) {
 		return
 	}
 
-	answer := chaincodeConnection.PostInFabric("PutAssetById", idString, string(encodedAsset))
+	answer, gateway := chaincodeConnection.PostInFabric("PatchAsset", string(encodedAsset), idString)
+	defer gateway.Close()
 	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
 }
 
 func (c ChaincodeController) DeleteById(context *gin.Context) {
 	idString := context.Param("id")
-	answer := chaincodeConnection.PostInFabric("DeleteAssetById", idString)
+	answer, gateway := chaincodeConnection.PostInFabric("DeleteAssetById", idString)
+	defer gateway.Close()
 	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
 }

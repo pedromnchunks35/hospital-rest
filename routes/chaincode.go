@@ -14,7 +14,7 @@ func RegisterChaincodeRoutes(fabricService services.FabricService) {
 
 		routeObject.POST("", chaincodeController.PostAsset)
 
-		routeObject.PATCH("/patchById/:id", chaincodeController.PutById)
+		routeObject.PATCH("/patchById/:id", chaincodeController.PatchById)
 
 		routeObject.DELETE("/deleteById/:id", chaincodeController.DeleteById)
 	}

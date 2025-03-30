@@ -30,8 +30,7 @@ func ValidateObject(asset *dtos.PostAssetRequest) error {
 		isStringValid(asset.TypeForm) &&
 		isStringValid(asset.Hash) &&
 		isStringValid(asset.Description) &&
-		isStringValid(asset.InsertionType) &&
-		isStringValid(asset.Timestamp) {
+		isStringValid(asset.InsertionType) {
 		return nil
 	}
 	return fmt.Errorf("please make sure that all the fields are present")

@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func getContract() *client.Contract {
+func getContract() (*client.Contract, *client.Gateway) {
 	tlsCertPath := os.Getenv("TLS_CERT_PATH")
 	peerAddress := os.Getenv("PEER_TO_CONNECT")
 	clientCertPath := os.Getenv("HLF_CLIENT_CERT_PATH")
@@ -24,21 +24,25 @@ func getContract() *client.Contract {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	defer gateway.Close()
+
+	if gateway == nil {
+		log.Fatal("Failed to create gateway connection")
+	}
 
 	channel := gateway.GetNetwork("channel1")
 
-	return channel.GetContract("basic")
+	return channel.GetContract("form"), gateway
 }
 
-func ReadInFabric(operation string, args ...string) string {
-	contract := getContract()
+func ReadInFabric(operation string, args ...string) (string, *client.Gateway) {
+	contract, gateway := getContract()
 
-	return read(contract, operation, args...)
+	return read(contract, operation, args...), gateway
 }
 
-func PostInFabric(operation string, args ...string) string {
-	contract := getContract()
+func PostInFabric(operation string, args ...string) (string, *client.Gateway) {
+	contract, gateway := getContract()
+	defer gateway.Close()
 
-	return post(contract, operation, args...)
+	return post(contract, operation, args...), gateway
 }

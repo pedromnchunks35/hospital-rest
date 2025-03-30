@@ -1,7 +1,6 @@
 package chaincodeConnection
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
@@ -15,11 +14,11 @@ type Message struct {
 	Hash          string `json:"hash"`
 }
 
-func post(contract *client.Contract, operation string, args ...string) string {
-	res, err := contract.Submit(operation, client.WithArguments(args...))
+func post(contract *client.Contract, operation string, arg ...string) string {
+	res, err := contract.SubmitTransaction(operation, arg...)
 	if err != nil {
 		fmt.Printf("error creating asset %v\n", err)
-		_, err := contract.Evaluate(operation, client.WithArguments(args...))
+		_, err := contract.EvaluateTransaction(operation, arg...)
 		return err.Error()
 	}
 
@@ -31,17 +30,5 @@ func read(contract *client.Contract, operation string, args ...string) string {
 	if err != nil {
 		return err.Error()
 	}
-
-	msg := &Message{}
-	err = json.Unmarshal(res, msg)
-	if err != nil {
-		return err.Error()
-	}
-
-	indentedMsg, err := json.MarshalIndent(msg, "", "    ")
-	if err != nil {
-		return err.Error()
-	}
-
-	return string(indentedMsg)
+	return string(res)
 }
