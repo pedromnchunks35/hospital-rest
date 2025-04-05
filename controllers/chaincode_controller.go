@@ -25,26 +25,32 @@ func (c ChaincodeController) GetAssetHistoryById(context *gin.Context) {
 	answerString, gateway := chaincodeConnection.ReadInFabric("GetHistoryAssetById", idString)
 	defer gateway.Close()
 
-	response := &dtos.AssetHistory{}
-	assetHistory := &dtos.KeyModification{}
-	err := json.Unmarshal([]byte(answerString), assetHistory)
+	assetHistoryWithEncoded := &[]dtos.KeyModification{}
+	err := json.Unmarshal([]byte(answerString), assetHistoryWithEncoded)
 	if err != nil {
 		apiResponses.ErrorResponse(context, answerString)
 		return
-	} else {
-		valueFromHistory := &dtos.Asset{}
-		err := json.Unmarshal(assetHistory.Value, valueFromHistory)
+	}
+
+	assetHistory := []dtos.AssetHistory{}
+	for _, singleKey := range *assetHistoryWithEncoded {
+		asset := &dtos.Asset{}
+		err := json.Unmarshal(singleKey.Value, asset)
 		if err != nil {
 			apiResponses.ErrorResponse(context, answerString)
 			return
 		}
-		response.TxId = assetHistory.TxId
-		response.Value = valueFromHistory
-		response.Timestamp = assetHistory.Timestamp
-		response.IsDelete = assetHistory.IsDelete
+		singleHistory := dtos.AssetHistory{
+			TxId:      singleKey.TxId,
+			IsDelete:  singleKey.IsDelete,
+			Value:     asset,
+			Timestamp: singleKey.Timestamp,
+		}
+
+		assetHistory = append(assetHistory, singleHistory)
 	}
 
-	apiResponses.SuccessResponse(context, response, "The fabric network retrieved an answer")
+	apiResponses.SuccessResponse(context, assetHistory, "The fabric network retrieved an answer")
 	return
 }
 
