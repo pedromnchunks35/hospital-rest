@@ -5,15 +5,6 @@ import (
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 )
 
-type Message struct {
-	Id            string `json:"id"`
-	TypeForm      string `json:"type_form"`
-	Description   string `json:"description"`
-	Timestamp     string `json:"timestamp"`
-	InsertionType string `json:"insertion_type"`
-	Hash          string `json:"hash"`
-}
-
 func post(contract *client.Contract, operation string, arg ...string) string {
 	res, err := contract.SubmitTransaction(operation, arg...)
 	if err != nil {

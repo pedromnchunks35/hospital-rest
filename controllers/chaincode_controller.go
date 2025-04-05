@@ -50,7 +50,14 @@ func (c ChaincodeController) GetAllAssets(context *gin.Context) {
 		string(filterEncoded),
 	)
 	defer gateway.Close()
-	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
+
+	assets := &[]dtos.PostAssetRequest{}
+	err = json.Unmarshal([]byte(answer), assets)
+	if err != nil {
+		apiResponses.ErrorResponse(context, answer)
+	}
+
+	apiResponses.SuccessResponse(context, assets, "The fabric network retrieved an answer")
 	return
 }
 
@@ -76,13 +83,27 @@ func (c ChaincodeController) PostAsset(context *gin.Context) {
 
 	answer, gateway := chaincodeConnection.PostInFabric("CreateAsset", string(newAssetEncoded))
 	defer gateway.Close()
-	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
+
+	asset := &dtos.PostAssetRequest{}
+	err = json.Unmarshal([]byte(answer), asset)
+	if err != nil {
+		apiResponses.ErrorResponse(context, answer)
+	}
+
+	apiResponses.SuccessResponse(context, asset, "The fabric network retrieved an answer")
 }
 
 func (c ChaincodeController) GetById(context *gin.Context) {
 	idString := context.Param("id")
 	answer, gateway := chaincodeConnection.ReadInFabric("GetAssetById", idString)
 	defer gateway.Close()
+
+	asset := &dtos.PostAssetRequest{}
+	err := json.Unmarshal([]byte(answer), asset)
+	if err != nil {
+		apiResponses.ErrorResponse(context, answer)
+	}
+
 	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
 }
 
@@ -99,6 +120,13 @@ func (c ChaincodeController) PatchById(context *gin.Context) {
 
 	answer, gateway := chaincodeConnection.PostInFabric("PatchAsset", string(encodedAsset), idString)
 	defer gateway.Close()
+
+	asset := &dtos.PostAssetRequest{}
+	err = json.Unmarshal([]byte(answer), asset)
+	if err != nil {
+		apiResponses.ErrorResponse(context, answer)
+	}
+
 	apiResponses.SuccessResponse(context, answer, "The fabric network retrieved an answer")
 }
 
