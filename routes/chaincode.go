@@ -11,6 +11,7 @@ func RegisterChaincodeRoutes(fabricService services.FabricService) {
 		chaincodeController := controllers.CreateChaincodeController(fabricService)
 		routeObject.GET("/:page/:size", chaincodeController.GetAllAssets)
 		routeObject.GET("/getById/:id", chaincodeController.GetById)
+		routeObject.GET("/getAssetHistoryById/:id", chaincodeController.GetAssetHistoryById)
 
 		routeObject.POST("", chaincodeController.PostAsset)
 
